@@ -96,7 +96,7 @@ import { SidebarGroup } from "@/components/shared/sidebar-group";
 import { SidebarItem } from "@/components/shared/sidebar-item";
 import { Tabs, TabsContent, TabsContents, TabsList, TabsTrigger } from "@/components/shared/tabs";
 
-import { NoteEditor } from "@/features/editor/note-editor";
+import { NoteEditor } from "./note-editor-demo";
 
 const TOKEN_SWATCHES = [
   { label: "Background", className: "bg-background border-border border" },

@@ -3,11 +3,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
+import dynamic from "next/dynamic";
+
 import { EmptyState } from "@/components/shared/empty-state";
 import { KnowledgePanel } from "@/modules/knowledge/components/KnowledgePanel";
-import { NoteEditor } from "@/modules/notes/components/NoteEditor";
 import { getNote } from "@/modules/notes/services/notes.service";
 import { useProjects } from "@/modules/projects/hooks/useProjects";
+
+// Code splitting real: el bundle de Tiptap/ProseMirror solo se descarga al
+// abrir una nota, nunca en landing/login/dashboard.
+const NoteEditor = dynamic(
+  () => import("@/modules/notes/components/NoteEditor").then((m) => m.NoteEditor),
+  { ssr: false },
+);
 
 export const noteQueryKey = (noteId: string) => ["note", noteId] as const;
 

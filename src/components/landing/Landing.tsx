@@ -35,6 +35,17 @@ export function Landing() {
         opacity={1}
         style={{ zIndex: 40 }}
       />
+      <GradualBlur
+        target="page"
+        position="bottom"
+        height="8rem"
+        strength={2}
+        divCount={5}
+        curve="bezier"
+        exponential
+        opacity={1}
+        style={{ zIndex: 40 }}
+      />
 
       <Hero />
       <TechLoop className="relative z-[2] border-y border-white/[0.06] bg-black/30 py-8 backdrop-blur-sm" />

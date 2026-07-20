@@ -15,7 +15,7 @@ type HeroCardsProps = {
 /** Fila de mini tarjetas del Hero, pegada al borde derecho — el hover no cambia su propio texto, actualiza el titular. */
 export function HeroCards({ onActiveTextChange }: HeroCardsProps) {
   return (
-    <div className="flex flex-wrap justify-end gap-2 lg:shrink-0 lg:flex-nowrap">
+    <div className="flex flex-wrap justify-end gap-4 pr-8 lg:shrink-0 lg:flex-nowrap">
       {HERO_CARDS.map((card) => (
         <HeroCard
           key={card.front}

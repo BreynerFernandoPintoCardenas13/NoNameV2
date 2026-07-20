@@ -1,12 +1,15 @@
+"use client";
+
 import Image from "next/image";
 
-import papsito from "@/assets/images/landing/papsito.jpeg";
+import papsito from "@/assets/images/landing/papsito-removebg-preview.png";
 import quienLoHizoBg from "@/assets/images/landing/quien-lo-hizo-bg.jpg";
-import { ElectricBorder } from "@/components/effects/electric-border";
+import { ProfileCard } from "@/components/effects/profile-card";
 import { Eyebrow } from "@/components/landing/Eyebrow";
-import { GlassCard } from "@/components/landing/GlassCard";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
-import { Avatar } from "@/components/shared/avatar";
+
+const CONTACT_EMAIL = "pintobreyner103@gmail.com";
+const GITHUB_URL = "https://github.com/BreynerFernandoPintoCardenas13";
 
 export function QuienLoHizoSection() {
   return (
@@ -27,40 +30,29 @@ export function QuienLoHizoSection() {
           ya no tengas que saltarte el almuerzo y trabajar hasta tarde todos los días.
         </p>
 
-        <ElectricBorder
-          color="#f7f7f7"
-          chaos={0.08}
-          speed={0.6}
-          borderRadius={24}
-          className="mx-auto mt-14 w-fit sm:mt-16"
-        >
-          <GlassCard className="flex max-w-md items-center gap-5 rounded-3xl p-5 text-left">
-            <Avatar
-              src={papsito}
-              fallback="MF"
-              className="size-[84px] shrink-0"
-              fallbackClassName="text-lg"
-            />
-            <div className="min-w-0">
-              <div className="text-[15px] font-semibold text-[#f7f7f7]">Breyner Pinto</div>
-              <div className="mt-0.5 text-[13px] text-white/60">
-                Fundador &amp; Desarrollador Junior
-              </div>
-              <div className="mt-2.5 flex flex-col gap-[3px] text-[12.5px] text-white/65">
-                <span>+57 318 2792275</span>
-                <span>pintobreyner103@gmail.com</span>
-                <a
-                  href="https://github.com/BreynerFernandoPintoCardenas13"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-white/80 transition-colors duration-300 hover:text-white"
-                >
-                  github.com/BreynerFernandoPintoCardenas13
-                </a>
-              </div>
-            </div>
-          </GlassCard>
-        </ElectricBorder>
+        <div className="mx-auto mt-14 w-fit sm:mt-16">
+          <ProfileCard
+            avatarUrl={papsito}
+            name="Breyner Pinto"
+            title="Fundador & Desarrollador Junior"
+            handle="breynerpinto"
+            status="Disponible"
+            contactText="Contactar"
+            behindGlowEnabled
+            behindGlowColor="rgba(247, 247, 247, 0.45)"
+            onContactClick={() => {
+              window.location.href = `mailto:${CONTACT_EMAIL}`;
+            }}
+          />
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 block text-center text-[12.5px] text-white/60 transition-colors duration-300 hover:text-white"
+          >
+            github.com/BreynerFernandoPintoCardenas13
+          </a>
+        </div>
       </div>
     </ScrollRevealSection>
   );

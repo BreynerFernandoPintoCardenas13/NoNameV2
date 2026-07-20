@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import queHaceBg from "@/assets/images/landing/que-hace-bg.jpg";
+import { ScrollReveal } from "@/components/effects/scroll-reveal";
 import { Eyebrow } from "@/components/landing/Eyebrow";
 import { ScrollRevealSection } from "@/components/landing/ScrollRevealSection";
 
@@ -43,10 +44,16 @@ export function QueHaceSection() {
       <div className="relative z-[1] mx-auto max-w-5xl">
         <div className="mb-14 sm:mb-16">
           <Eyebrow>¿QUÉ HACE?</Eyebrow>
-          <h2 className="mt-5 max-w-3xl text-[clamp(28px,3.6vw,48px)] leading-[1.18] font-medium tracking-[-0.01em] text-[#f7f7f7]">
+          <ScrollReveal
+            containerClassName="mt-5 max-w-3xl"
+            textClassName="text-[clamp(28px,3.6vw,48px)] leading-[1.18] font-medium tracking-[-0.01em] text-[#f7f7f7]"
+            baseOpacity={0.15}
+            baseRotation={4}
+            blurStrength={8}
+          >
             Entra a una reunión, y mientras lidias con los clientes toma nota, y deja que la IA
             convierta tus palabras en tickets listos en OpenProject.
-          </h2>
+          </ScrollReveal>
         </div>
 
         <div className="flex flex-wrap gap-10 sm:gap-14">

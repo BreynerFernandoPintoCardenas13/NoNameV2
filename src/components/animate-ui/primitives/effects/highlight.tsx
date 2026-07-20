@@ -134,6 +134,8 @@ function Highlight<T extends React.ElementType = "div">({ ref, ...props }: Highl
     exitDelay = 200,
     mode = "children",
   } = props;
+  // Component is generically typed (T extends React.ElementType); cast so JSX accepts a ref on it.
+  const ContainerComponent = Component as React.ComponentType<Record<string, unknown>>;
 
   const localRef = React.useRef<HTMLDivElement>(null);
   React.useImperativeHandle(ref, () => localRef.current as HTMLDivElement);
@@ -243,7 +245,7 @@ function Highlight<T extends React.ElementType = "div">({ ref, ...props }: Highl
   const render = (children: React.ReactNode) => {
     if (mode === "parent") {
       return (
-        <Component
+        <ContainerComponent
           ref={localRef}
           data-slot="motion-highlight-container"
           style={{ position: "relative", zIndex: 1 }}
@@ -281,7 +283,7 @@ function Highlight<T extends React.ElementType = "div">({ ref, ...props }: Highl
             )}
           </AnimatePresence>
           {children}
-        </Component>
+        </ContainerComponent>
       );
     }
 

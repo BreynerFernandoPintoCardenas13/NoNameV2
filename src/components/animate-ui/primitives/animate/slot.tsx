@@ -59,9 +59,11 @@ function Slot<T extends HTMLElement = HTMLElement>({ children, ref, ...props }: 
 
   const Base = React.useMemo(
     () =>
-      isAlreadyMotion
+      (isAlreadyMotion
         ? (children.type as React.ElementType)
-        : motion.create(children.type as React.ElementType),
+        : motion.create(children.type as React.ElementType)) as React.ComponentType<
+        Record<string, unknown>
+      >,
     [isAlreadyMotion, children.type],
   );
 
@@ -71,10 +73,7 @@ function Slot<T extends HTMLElement = HTMLElement>({ children, ref, ...props }: 
 
   const mergedProps = mergeProps(childProps, props);
 
-  return (
-    // eslint-disable-next-line react-hooks/static-components -- Base is memoized above, this is intentional per upstream animate-ui
-    <Base {...mergedProps} ref={mergeRefs(childRef as React.Ref<T>, ref)} />
-  );
+  return <Base {...mergedProps} ref={mergeRefs(childRef as React.Ref<T>, ref)} />;
 }
 
 export { Slot, type SlotProps, type WithAsChild, type DOMMotionProps, type AnyProps };

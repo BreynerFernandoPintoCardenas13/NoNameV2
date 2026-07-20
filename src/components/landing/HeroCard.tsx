@@ -1,9 +1,5 @@
-"use client";
-
-import * as React from "react";
-
-import { GlareHover } from "@/components/effects/glare-hover";
-import { playfair } from "@/lib/fonts";
+import { TiltedCard } from "@/components/effects/tilted-card";
+import { inter } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
 export type HeroCardProps = {
@@ -12,22 +8,24 @@ export type HeroCardProps = {
   className?: string;
 };
 
-/** Mini tarjeta glass del Hero — texto estático; el hover actualiza el titular del Hero (ver Hero.tsx) y agranda la tarjeta. */
+/** Mini tarjeta glass del Hero — tilt 3D al mouse (TiltedCard); el hover actualiza el titular del Hero. */
 export function HeroCard({ label, onHoverChange, className }: HeroCardProps) {
   return (
-    <GlareHover
-      glareOpacity={0.15}
-      transitionDuration={900}
-      className={cn(
-        "relative flex h-[94px] min-w-[112px] shrink-0 items-center rounded-[20px] bg-white/[0.16] p-3 backdrop-blur-xl transition-transform duration-500 ease-out hover:z-10 hover:scale-110",
-        className,
-      )}
-      onMouseEnter={() => onHoverChange?.(true)}
-      onMouseLeave={() => onHoverChange?.(false)}
+    <TiltedCard
+      containerHeight="94px"
+      containerWidth="132px"
+      rotateAmplitude={10}
+      scaleOnHover={2}
+      showMobileWarning={false}
+      showTooltip={false}
+      className={cn("shrink-0", className)}
+      onHoverChange={onHoverChange}
     >
-      <span className={cn(playfair.className, "text-[11px] tracking-[0.02em] text-white/85")}>
-        {label}
-      </span>
-    </GlareHover>
+      <div className="flex h-full w-full items-center justify-center rounded-[5px] bg-white/[0.30] p-3 text-center backdrop-blur-xl">
+        <span className={cn(inter.className, "text-[11px] tracking-[0.02em] text-white/85")}>
+          {label}
+        </span>
+      </div>
+    </TiltedCard>
   );
 }

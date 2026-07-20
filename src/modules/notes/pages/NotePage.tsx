@@ -4,14 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
+import { NoteEditor } from "@/modules/notes/components/NoteEditor";
 import { getNote } from "@/modules/notes/services/notes.service";
+import { useProjects } from "@/modules/projects/hooks/useProjects";
 
 export const noteQueryKey = (noteId: string) => ["note", noteId] as const;
 
-/**
- * Página de una nota. En Fase 1 muestra los datos básicos; el editor TipTap
- * llega en Fase 2 y reemplaza el cuerpo de esta misma página.
- */
+/** Página de una nota: carga el documento completo y monta el editor. */
 export function NotePage({ noteId }: { noteId: string }) {
   const {
     data: note,
@@ -21,6 +20,7 @@ export function NotePage({ noteId }: { noteId: string }) {
     queryKey: noteQueryKey(noteId),
     queryFn: () => getNote(noteId),
   });
+  const { data: projects } = useProjects();
 
   if (isLoading) {
     return (
@@ -42,15 +42,9 @@ export function NotePage({ noteId }: { noteId: string }) {
     );
   }
 
-  return (
-    <div className="mx-auto flex h-full max-w-3xl flex-col gap-4 px-8 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">
-        {note.title || <span className="text-muted-foreground italic">Sin título</span>}
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        El editor de notas llega en la Fase 2 de la migración. La nota ya existe y es tuya: creada
-        el {new Date(note.createdAt).toLocaleDateString("es-CO")}.
-      </p>
-    </div>
-  );
+  const project = projects?.find((p) => p.id === note.projectId) ?? null;
+
+  // key={note.id}: cambiar de nota remonta el editor completo (contenido
+  // inicial nuevo, autosave limpio) — mismo efecto que `openNote` en V1.
+  return <NoteEditor key={note.id} note={note} openProjectId={project?.openProjectId ?? null} />;
 }

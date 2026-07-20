@@ -1,0 +1,179 @@
+/**
+ * Estilos globales del editor de notas (contenido ProseMirror + widgets DOM
+ * de las decoraciones). Global a propósito: los chips/indicadores se crean
+ * con DOM imperativo dentro de decoraciones de ProseMirror y usan clases
+ * literales — un CSS Module rompería esos nombres (mismo criterio que
+ * profile-card.css).
+ */
+
+/* ---------- Título estilo Notion ---------- */
+.note-title:empty::before {
+  content: attr(data-placeholder);
+  pointer-events: none;
+  color: color-mix(in oklch, var(--foreground) 30%, transparent);
+}
+
+/* ---------- Contenido del editor ---------- */
+.note-editor .tiptap {
+  outline: none;
+  min-height: 50vh;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--foreground);
+}
+
+.note-editor .tiptap > * + * {
+  margin-top: 0.5em;
+}
+
+.note-editor .tiptap h1 {
+  font-size: 1.6em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 1em;
+}
+
+.note-editor .tiptap h2 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-top: 0.9em;
+}
+
+.note-editor .tiptap ul {
+  list-style: disc;
+  padding-left: 1.4em;
+}
+
+.note-editor .tiptap ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+}
+
+.note-editor .tiptap blockquote {
+  border-left: 2px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+  padding-left: 0.9em;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+}
+
+.note-editor .tiptap code {
+  background: color-mix(in oklch, var(--foreground) 8%, transparent);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-size: 0.9em;
+}
+
+.note-editor .tiptap img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin: 0.4em 0;
+}
+
+/* Placeholder (extensión Placeholder de Tiptap) */
+.note-editor .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: color-mix(in oklch, var(--foreground) 35%, transparent);
+}
+
+/* ---------- Chips de metadatos (decoración, DOM puro) ---------- */
+.metadata-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+.metadata-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 16%, transparent);
+  background: color-mix(in oklch, var(--foreground) 6%, transparent);
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.metadata-chip:hover {
+  background: color-mix(in oklch, var(--foreground) 12%, transparent);
+}
+
+.metadata-chip.dragging {
+  opacity: 0.6;
+}
+
+.metadata-chip-icon {
+  font-size: 11px;
+}
+
+/* ---------- Indicador de ticket Frozen (decoración, DOM puro) ---------- */
+.ticket-processed {
+  position: relative;
+  border-left: 3px solid #22c55e;
+  padding-left: 10px;
+  opacity: 0.75;
+}
+
+.ticket-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, #22c55e 40%, transparent);
+  background: color-mix(in oklch, #22c55e 12%, transparent);
+  color: #4ade80;
+  font-size: 11px;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+/* Tooltip: el hueco chip→tarjeta es padding del contenedor invisible (hitbox), nunca margin. */
+.ticket-tooltip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  padding-top: 6px;
+  z-index: 30;
+}
+
+.ticket-chip:hover .ticket-tooltip {
+  display: block;
+}
+
+.ticket-tooltip-card {
+  min-width: 210px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 14%, transparent);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  padding: 10px 12px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.6);
+}
+
+.ticket-tooltip-link {
+  align-self: flex-start;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 20%, transparent);
+  padding: 3px 10px;
+  text-decoration: none;
+  color: var(--foreground);
+  transition: background 150ms ease;
+}
+
+.ticket-tooltip-link:hover {
+  background: color-mix(in oklch, var(--foreground) 10%, transparent);
+}

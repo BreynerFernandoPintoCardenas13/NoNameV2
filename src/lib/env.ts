@@ -22,3 +22,23 @@ export function env(): ServerEnv {
   }
   return cached;
 }
+
+/**
+ * Env del servidor específica de autenticación (Supabase). Separada de `env()`
+ * para que el módulo auth no exija tener configuradas las claves de IA/OpenProject.
+ * La service role key es SOLO de servidor: jamás debe llevar prefijo NEXT_PUBLIC.
+ */
+const authServerEnvSchema = z.object({
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+});
+
+export type AuthServerEnv = z.infer<typeof authServerEnvSchema>;
+
+let authCached: AuthServerEnv | null = null;
+
+export function authServerEnv(): AuthServerEnv {
+  if (!authCached) {
+    authCached = authServerEnvSchema.parse(process.env);
+  }
+  return authCached;
+}

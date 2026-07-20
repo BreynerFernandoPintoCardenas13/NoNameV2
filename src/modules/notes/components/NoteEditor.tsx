@@ -4,6 +4,7 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { CalendarClock } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -14,7 +15,12 @@ import {
   MetadataDialogs,
   type MetadataDialogKind,
 } from "@/modules/notes/components/MetadataDialogs";
+import {
+  ParticipantsDialog,
+  type ParticipantsDialogState,
+} from "@/modules/notes/components/ParticipantsDialog";
 import { BlockMetadataExtension } from "@/modules/notes/editor/extensions/block-metadata";
+import { MeetingBlockExtension } from "@/modules/notes/editor/extensions/meeting-block";
 import { TicketTrackingExtension } from "@/modules/notes/editor/extensions/ticket-tracking";
 import type { MetadataRegistry } from "@/modules/notes/editor/metadata/types";
 import { useNoteAutosave } from "@/modules/notes/hooks/useNoteAutosave";
@@ -53,6 +59,9 @@ export function NoteEditor({
 }: NoteEditorProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [dialogKind, setDialogKind] = React.useState<MetadataDialogKind>(null);
+  const [participantsState, setParticipantsState] = React.useState<ParticipantsDialogState | null>(
+    null,
+  );
 
   // El registry se crea una sola vez: los chips reabren el mismo modal que
   // el menú "+", tanto para fijar por primera vez como para editar.
@@ -86,6 +95,9 @@ export function NoteEditor({
       Placeholder.configure({ placeholder: "Escribe aquí tus notas de la reunión…" }),
       BlockMetadataExtension.configure({ registry }),
       TicketTrackingExtension,
+      MeetingBlockExtension.configure({
+        onAddParticipant: (current, onSave) => setParticipantsState({ current, onSave }),
+      }),
     ],
     content: note.document,
     autofocus: "end",
@@ -168,7 +180,14 @@ export function NoteEditor({
           editor={editor}
           containerRef={containerRef}
           onPickMetadata={setDialogKind}
-          extraItems={extraPlusItems}
+          extraItems={[
+            {
+              label: "Reunión",
+              icon: <CalendarClock />,
+              onSelect: () => editor?.chain().focus().insertMeetingBlock().run(),
+            },
+            ...(extraPlusItems ?? []),
+          ]}
         />
         {editor && <EditorBubbleMenu editor={editor} />}
         <EditorContent editor={editor} />
@@ -179,6 +198,11 @@ export function NoteEditor({
         kind={dialogKind}
         onClose={() => setDialogKind(null)}
         openProjectId={openProjectId}
+      />
+      <ParticipantsDialog
+        state={participantsState}
+        onClose={() => setParticipantsState(null)}
+        projectId={note.projectId}
       />
     </div>
   );

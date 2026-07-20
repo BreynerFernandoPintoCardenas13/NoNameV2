@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertTriangle,
   ChevronRight,
   FilePlus2,
   FileText,
@@ -38,7 +39,7 @@ interface ProjectsTreeProps {
 
 /** Árbol Proyectos → Notas de la sidebar (carga perezosa de notas al expandir). */
 export function ProjectsTree({ onEditProject, onActiveProjectChange }: ProjectsTreeProps) {
-  const { data: projects, isLoading } = useProjects();
+  const { data: projects, isLoading, isError, error, refetch } = useProjects();
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
 
   const toggle = (project: LocalProject) => {
@@ -57,6 +58,23 @@ export function ProjectsTree({ onEditProject, onActiveProjectChange }: ProjectsT
         <Skeleton className="h-8 w-full" />
         <Skeleton className="h-8 w-full" />
         <Skeleton className="h-8 w-3/4" />
+      </div>
+    );
+  }
+
+  // Un error de carga NUNCA debe leerse como "no tienes proyectos" — son
+  // estados distintos (uno es "vacío", el otro es "algo está roto").
+  if (isError) {
+    return (
+      <div className="border-destructive/40 bg-destructive/5 mx-2 flex flex-col items-start gap-2 rounded-lg border border-dashed p-3 text-xs">
+        <p className="text-destructive flex items-center gap-1.5 font-medium">
+          <AlertTriangle className="size-3.5" aria-hidden="true" /> No se pudieron cargar los
+          proyectos
+        </p>
+        <p className="text-muted-foreground">{error.message}</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          Reintentar
+        </Button>
       </div>
     );
   }
@@ -191,6 +209,11 @@ function ProjectItem({
       {expanded && (
         <ul className="ml-5 flex flex-col gap-0.5 border-l pl-2">
           {notes.isLoading && <Skeleton className="my-1 h-6 w-full" />}
+          {notes.isError && (
+            <li className="text-destructive px-2 py-1 text-xs">
+              No se pudieron cargar las notas ({notes.error.message})
+            </li>
+          )}
           {notes.data?.length === 0 && (
             <li className="text-muted-foreground px-2 py-1 text-xs">Sin notas todavía</li>
           )}

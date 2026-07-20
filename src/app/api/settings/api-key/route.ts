@@ -59,36 +59,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No se pudo guardar la API Key." }, { status: 500 });
   }
 
+  // Paso 1: verificar contra OpenProject. Un fallo aquí SÍ es "credenciales
+  // inválidas o servidor inaccesible" — separado a propósito del paso 2 para
+  // no confundir un problema de infraestructura propia con una key mala.
+  let opUser: { id: number; name: string; login: string } | null = null;
   try {
-    const opUser = await OpenProjectService.withApiKey(apiKey).getCurrentUser();
-    // Una key nueva pertenece (probablemente) a otro usuario de OpenProject:
-    // se reemplaza el perfil resuelto.
-    const { error: settingsError } = await supabase.from("user_settings").upsert(
-      {
-        auth_id: user.id,
-        op_current_user_id: opUser.id,
-        op_current_user_name: opUser.name,
-        op_current_user_login: opUser.login,
-      },
-      { onConflict: "auth_id" },
-    );
-    if (settingsError) throw new Error("No se pudo guardar el perfil de OpenProject.");
-
-    return NextResponse.json({
-      hasApiKey: true,
-      opCurrentUser: { id: opUser.id, name: opUser.name, login: opUser.login },
-    });
-  } catch {
-    // La key quedó guardada pero no se pudo verificar: perfil anterior ya no es válido.
-    await supabase.from("user_settings").upsert(
-      {
-        auth_id: user.id,
-        op_current_user_id: null,
-        op_current_user_name: null,
-        op_current_user_login: null,
-      },
-      { onConflict: "auth_id" },
-    );
+    opUser = await OpenProjectService.withApiKey(apiKey).getCurrentUser();
+  } catch (error) {
+    console.error("Verificación de API Key de OpenProject falló:", error);
     return NextResponse.json({
       hasApiKey: true,
       opCurrentUser: null,
@@ -96,4 +74,32 @@ export async function POST(request: Request) {
         "La API Key se guardó, pero no se pudo verificar contra OpenProject (credenciales inválidas o servidor inaccesible).",
     });
   }
+
+  // Paso 2: persistir el perfil resuelto. Un fallo aquí es un problema
+  // nuestro (p. ej. la tabla `user_settings` no existe todavía) — nunca se
+  // reporta como si la API Key fuera inválida.
+  const { error: settingsError } = await supabase.from("user_settings").upsert(
+    {
+      auth_id: user.id,
+      op_current_user_id: opUser.id,
+      op_current_user_name: opUser.name,
+      op_current_user_login: opUser.login,
+    },
+    { onConflict: "auth_id" },
+  );
+  if (settingsError) {
+    console.error("No se pudo guardar user_settings tras verificar la API Key:", settingsError);
+    return NextResponse.json(
+      {
+        error:
+          "La API Key es válida y se verificó contra OpenProject, pero no se pudo guardar tu perfil (revisa que la migración de base de datos esté aplicada).",
+      },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({
+    hasApiKey: true,
+    opCurrentUser: { id: opUser.id, name: opUser.name, login: opUser.login },
+  });
 }

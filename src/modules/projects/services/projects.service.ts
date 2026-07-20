@@ -21,7 +21,10 @@ export async function listProjects(): Promise<LocalProject[]> {
     .from("projects")
     .select(COLUMNS)
     .order("created_at", { ascending: true });
-  if (error) throw new Error("No se pudieron cargar los proyectos.");
+  if (error) {
+    console.error("No se pudieron cargar los proyectos:", error);
+    throw new Error(`No se pudieron cargar los proyectos (${error.message}).`);
+  }
   return (data as ProjectRow[]).map(toLocalProject);
 }
 

@@ -40,7 +40,10 @@ export async function listNotesByProject(projectId: string): Promise<MeetingNote
     .select(SUMMARY_COLUMNS)
     .eq("project_id", projectId)
     .order("created_at", { ascending: true });
-  if (error) throw new Error("No se pudieron cargar las notas.");
+  if (error) {
+    console.error("No se pudieron cargar las notas:", error);
+    throw new Error(`No se pudieron cargar las notas (${error.message}).`);
+  }
   return (data as NoteRow[]).map(toSummary);
 }
 

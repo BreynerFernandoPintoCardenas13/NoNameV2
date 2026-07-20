@@ -23,7 +23,10 @@ export async function getUserSettings(): Promise<UserSettings> {
     fetch("/api/settings/api-key").then((res) => (res.ok ? res.json() : { hasApiKey: false })),
   ]);
 
-  if (settingsResult.error) throw new Error("No se pudo cargar la configuración.");
+  if (settingsResult.error) {
+    console.error("No se pudo cargar la configuración:", settingsResult.error);
+    throw new Error(`No se pudo cargar la configuración (${settingsResult.error.message}).`);
+  }
   return rowToSettings(
     settingsResult.data as UserSettingsRow | null,
     Boolean((apiKeyResult as { hasApiKey?: boolean }).hasApiKey),

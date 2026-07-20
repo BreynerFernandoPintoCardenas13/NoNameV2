@@ -84,6 +84,10 @@ export function SettingsDialog({ open, onOpenChange, activeProject }: SettingsDi
             <Skeleton className="h-9 w-full" />
             <Skeleton className="h-9 w-full" />
           </div>
+        ) : settings.isError ? (
+          <p role="alert" className="text-destructive py-4 text-sm">
+            {settings.error.message}
+          </p>
         ) : (
           <div className="flex flex-col gap-6 py-2">
             <section className="flex flex-col gap-2" aria-label="API Key de OpenProject">

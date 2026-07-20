@@ -25,7 +25,8 @@ import { TicketTrackingExtension } from "@/modules/notes/editor/extensions/ticke
 import type { MetadataRegistry } from "@/modules/notes/editor/metadata/types";
 import { useNoteAutosave } from "@/modules/notes/hooks/useNoteAutosave";
 import { uploadNoteImage } from "@/modules/notes/services/note-images.service";
-import type { MeetingNote } from "@/modules/notes/types";
+import type { MeetingDocument, MeetingNote } from "@/modules/notes/types";
+import { TicketFlow } from "@/modules/tickets/components/TicketFlow";
 
 import "@/modules/notes/editor/editor.css";
 
@@ -153,7 +154,17 @@ export function NoteEditor({
         >
           {SAVE_LABEL[autosave.status]}
         </p>
-        {headerActions}
+        <div className="flex items-center gap-2">
+          <TicketFlow
+            editor={editor}
+            noteId={note.id}
+            projectId={note.projectId}
+            onDocumentUpdated={(document: MeetingDocument) =>
+              autosave.withoutAutosave(() => editor?.commands.setContent(document))
+            }
+          />
+          {headerActions}
+        </div>
       </div>
 
       {/* Título estilo Notion: div editable, Enter pasa el foco al cuerpo. */}

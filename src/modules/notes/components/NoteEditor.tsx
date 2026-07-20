@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { BlockPlusButton } from "@/modules/notes/components/BlockPlusButton";
 import { EditorBubbleMenu } from "@/modules/notes/components/EditorBubbleMenu";
+import { ExportNoteButton } from "@/modules/notes/components/ExportNoteButton";
 import {
   MetadataDialogs,
   type MetadataDialogKind,
@@ -155,6 +156,7 @@ export function NoteEditor({
           {SAVE_LABEL[autosave.status]}
         </p>
         <div className="flex items-center gap-2">
+          <ExportNoteButton editor={editor} />
           <TicketFlow
             editor={editor}
             noteId={note.id}

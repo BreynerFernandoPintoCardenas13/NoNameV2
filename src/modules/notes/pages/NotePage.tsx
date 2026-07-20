@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
+import { KnowledgePanel } from "@/modules/knowledge/components/KnowledgePanel";
 import { NoteEditor } from "@/modules/notes/components/NoteEditor";
 import { getNote } from "@/modules/notes/services/notes.service";
 import { useProjects } from "@/modules/projects/hooks/useProjects";
@@ -46,5 +47,12 @@ export function NotePage({ noteId }: { noteId: string }) {
 
   // key={note.id}: cambiar de nota remonta el editor completo (contenido
   // inicial nuevo, autosave limpio) — mismo efecto que `openNote` en V1.
-  return <NoteEditor key={note.id} note={note} openProjectId={project?.openProjectId ?? null} />;
+  return (
+    <div className="flex h-full">
+      <div className="min-w-0 flex-1 overflow-y-auto">
+        <NoteEditor key={note.id} note={note} openProjectId={project?.openProjectId ?? null} />
+      </div>
+      <KnowledgePanel projectId={note.projectId} />
+    </div>
+  );
 }

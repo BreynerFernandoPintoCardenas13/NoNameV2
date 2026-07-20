@@ -1,44 +1,32 @@
 import { z } from "zod";
 
 /**
- * Variables de entorno del servidor, validadas con Zod.
- * Importar `env` desde aquí en lugar de leer `process.env` directamente.
- * Solo para uso en el servidor (Server Components, Route Handlers, services).
+ * Variables de entorno del servidor, validadas con Zod y separadas por
+ * dominio: cada módulo exige solo lo que necesita (auth no requiere tener
+ * configurado Anthropic, ni OpenProject a Supabase, etc.). Importar estas
+ * funciones en lugar de leer `process.env` directamente. Solo servidor.
  */
-const serverEnvSchema = z.object({
-  DATABASE_URL: z.url(),
-  ANTHROPIC_API_KEY: z.string().min(1),
-  OPENPROJECT_BASE_URL: z.url(),
-  OPENPROJECT_API_KEY: z.string().min(1),
-});
 
-export type ServerEnv = z.infer<typeof serverEnvSchema>;
-
-let cached: ServerEnv | null = null;
-
-export function env(): ServerEnv {
-  if (!cached) {
-    cached = serverEnvSchema.parse(process.env);
-  }
-  return cached;
+function makeEnv<T extends z.ZodRawShape>(shape: T) {
+  const schema = z.object(shape);
+  let cached: z.infer<typeof schema> | null = null;
+  return () => {
+    if (!cached) cached = schema.parse(process.env);
+    return cached;
+  };
 }
 
-/**
- * Env del servidor específica de autenticación (Supabase). Separada de `env()`
- * para que el módulo auth no exija tener configuradas las claves de IA/OpenProject.
- * La service role key es SOLO de servidor: jamás debe llevar prefijo NEXT_PUBLIC.
- */
-const authServerEnvSchema = z.object({
+/** Supabase (service role). NUNCA exponer con prefijo NEXT_PUBLIC. */
+export const authServerEnv = makeEnv({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 });
 
-export type AuthServerEnv = z.infer<typeof authServerEnvSchema>;
+/** OpenProject: solo la URL base es de la app; la API Key es por usuario (tabla users). */
+export const openProjectEnv = makeEnv({
+  OPENPROJECT_BASE_URL: z.url().transform((url) => url.replace(/\/+$/, "")), // sin barra final, para concatenar rutas
+});
 
-let authCached: AuthServerEnv | null = null;
-
-export function authServerEnv(): AuthServerEnv {
-  if (!authCached) {
-    authCached = authServerEnvSchema.parse(process.env);
-  }
-  return authCached;
-}
+/** Anthropic (Claude): credencial de la aplicación, una para todos los usuarios. */
+export const aiEnv = makeEnv({
+  ANTHROPIC_API_KEY: z.string().min(1),
+});

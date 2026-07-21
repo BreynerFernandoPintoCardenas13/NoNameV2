@@ -4,13 +4,17 @@ import { Eyebrow } from "@/components/landing/Eyebrow";
 import { playfair } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import { AdminDashboardShell } from "@/modules/admin/components/AdminDashboardShell";
+import { DeveloperRankingList } from "@/modules/admin/components/DeveloperRankingList";
 import { DistributionChart } from "@/modules/admin/components/DistributionChart";
 import { FilterBar } from "@/modules/admin/components/FilterBar";
-import { RankingTable } from "@/modules/admin/components/RankingTable";
 import { RecentActivityTable } from "@/modules/admin/components/RecentActivityTable";
 import { ReportSectionCard } from "@/modules/admin/components/ReportSectionCard";
 import { StatCard } from "@/modules/admin/components/StatCard";
-import { ReportSectionSkeleton } from "@/modules/admin/components/skeletons/ReportSectionSkeleton";
+import { ActivityTableSkeleton } from "@/modules/admin/components/skeletons/ActivityTableSkeleton";
+import { BarChartSkeleton } from "@/modules/admin/components/skeletons/BarChartSkeleton";
+import { DonutChartSkeleton } from "@/modules/admin/components/skeletons/DonutChartSkeleton";
+import { LineChartSkeleton } from "@/modules/admin/components/skeletons/LineChartSkeleton";
+import { RankingListSkeleton } from "@/modules/admin/components/skeletons/RankingListSkeleton";
 import { StatCardSkeleton } from "@/modules/admin/components/skeletons/StatCardSkeleton";
 import { TimeBreakdownPanel } from "@/modules/admin/components/TimeBreakdownPanel";
 import { TrendChart } from "@/modules/admin/components/TrendChart";
@@ -29,13 +33,12 @@ function SectionError({ message }: { message: string }) {
   return <p className="text-destructive py-6 text-center text-sm">{message}</p>;
 }
 
-/**
- * Panel Administrador — Fase 3: cada sección ya está conectada a su hook
- * (TanStack Query) y muestra datos MOCK reales, con sus propios estados de
- * carga/error. El layout no cambia respecto a la Fase 2; en Fase 4 solo
- * cambia de dónde vienen los datos (`admin-analytics.service.ts`), nunca
- * esta página.
- */
+/** Atenúa el contenido mientras TanStack Query refetchea en segundo plano (cambio de filtros) sin mostrar el skeleton de nuevo. */
+function fetchingClass(isFetching: boolean): string {
+  return cn("transition-opacity duration-300", isFetching && "opacity-60");
+}
+
+/** Panel Administrador — Fase 5: cada sección ya renderiza visualizaciones reales (Recharts) sobre datos de OpenProject. */
 export function AdminDashboardPage() {
   const { filters, setFilters, resetFilters } = useAdminFilters();
 
@@ -72,11 +75,16 @@ export function AdminDashboardPage() {
           {dashboardSummary.isError ? (
             <SectionError message="No se pudo cargar el resumen." />
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div
+              className={cn(
+                "grid grid-cols-2 gap-3 sm:grid-cols-4",
+                fetchingClass(dashboardSummary.isFetching && !dashboardSummary.isLoading),
+              )}
+            >
               {dashboardSummary.isLoading
                 ? Array.from({ length: 8 }, (_, i) => <StatCardSkeleton key={i} />)
-                : dashboardSummary.data?.stats.map((stat) => (
-                    <StatCard key={stat.id} stat={stat} />
+                : dashboardSummary.data?.stats.map((stat, i) => (
+                    <StatCard key={stat.id} stat={stat} index={i} />
                   ))}
             </div>
           )}
@@ -86,9 +94,11 @@ export function AdminDashboardPage() {
           {ticketTrend.isError ? (
             <SectionError message="No se pudo cargar la tendencia." />
           ) : ticketTrend.isLoading || !ticketTrend.data ? (
-            <ReportSectionSkeleton />
+            <LineChartSkeleton />
           ) : (
-            <TrendChart trend={ticketTrend.data} />
+            <div className={fetchingClass(ticketTrend.isFetching)}>
+              <TrendChart trend={ticketTrend.data} />
+            </div>
           )}
         </ReportSectionCard>
 
@@ -96,19 +106,21 @@ export function AdminDashboardPage() {
           {ticketsByPm.isError ? (
             <SectionError message="No se pudo cargar el ranking." />
           ) : ticketsByPm.isLoading || !ticketsByPm.data ? (
-            <ReportSectionSkeleton />
+            <BarChartSkeleton orientation="columns" />
           ) : (
-            <div className="flex flex-col gap-4">
-              <DistributionChart distribution={ticketsByPm.data} />
-              <RankingTable
-                items={ticketsByPm.data.map((entry) => ({
+            <div className={fetchingClass(ticketsByPm.isFetching)}>
+              <DistributionChart
+                data={ticketsByPm.data.map((entry) => ({
                   id: entry.groupId,
                   name: entry.groupName,
                   value: entry.ticketCount,
                   secondaryValue: entry.estimatedHours,
                 }))}
+                orientation="columns"
                 valueLabel="Tickets"
                 secondaryLabel="Horas"
+                secondarySuffix="h"
+                emptyLabel="No hay tickets agrupados por PM para este rango de filtros."
               />
             </div>
           )}
@@ -118,19 +130,21 @@ export function AdminDashboardPage() {
           {ticketsByProject.isError ? (
             <SectionError message="No se pudo cargar el ranking." />
           ) : ticketsByProject.isLoading || !ticketsByProject.data ? (
-            <ReportSectionSkeleton />
+            <BarChartSkeleton orientation="horizontal" />
           ) : (
-            <div className="flex flex-col gap-4">
-              <DistributionChart distribution={ticketsByProject.data} />
-              <RankingTable
-                items={ticketsByProject.data.map((entry) => ({
+            <div className={fetchingClass(ticketsByProject.isFetching)}>
+              <DistributionChart
+                data={ticketsByProject.data.map((entry) => ({
                   id: entry.groupId,
                   name: entry.groupName,
                   value: entry.ticketCount,
                   secondaryValue: entry.estimatedHours,
                 }))}
+                orientation="horizontal"
                 valueLabel="Tickets"
                 secondaryLabel="Horas"
+                secondarySuffix="h"
+                emptyLabel="No hay tickets agrupados por proyecto para este rango de filtros."
               />
             </div>
           )}
@@ -140,18 +154,11 @@ export function AdminDashboardPage() {
           {developerRanking.isError ? (
             <SectionError message="No se pudo cargar el ranking." />
           ) : developerRanking.isLoading || !developerRanking.data ? (
-            <ReportSectionSkeleton />
+            <RankingListSkeleton />
           ) : (
-            <RankingTable
-              items={developerRanking.data.map((dev) => ({
-                id: dev.id,
-                name: dev.name,
-                value: dev.ticketCount,
-                secondaryValue: dev.estimatedHours,
-              }))}
-              valueLabel="Tickets"
-              secondaryLabel="Horas"
-            />
+            <div className={fetchingClass(developerRanking.isFetching)}>
+              <DeveloperRankingList items={developerRanking.data} />
+            </div>
           )}
         </ReportSectionCard>
 
@@ -159,9 +166,11 @@ export function AdminDashboardPage() {
           {timeBreakdown.isError ? (
             <SectionError message="No se pudo cargar el tiempo trabajado." />
           ) : timeBreakdown.isLoading || !timeBreakdown.data ? (
-            <ReportSectionSkeleton />
+            <DonutChartSkeleton />
           ) : (
-            <TimeBreakdownPanel summary={timeBreakdown.data} />
+            <div className={fetchingClass(timeBreakdown.isFetching)}>
+              <TimeBreakdownPanel summary={timeBreakdown.data} />
+            </div>
           )}
         </ReportSectionCard>
 
@@ -169,9 +178,11 @@ export function AdminDashboardPage() {
           {recentActivity.isError ? (
             <SectionError message="No se pudo cargar la actividad reciente." />
           ) : recentActivity.isLoading || !recentActivity.data ? (
-            <ReportSectionSkeleton />
+            <ActivityTableSkeleton />
           ) : (
-            <RecentActivityTable items={recentActivity.data} />
+            <div className={fetchingClass(recentActivity.isFetching)}>
+              <RecentActivityTable items={recentActivity.data} />
+            </div>
           )}
         </ReportSectionCard>
       </div>

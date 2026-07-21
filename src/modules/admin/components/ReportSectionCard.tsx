@@ -15,11 +15,7 @@ interface ReportSectionCardProps {
   children: React.ReactNode;
 }
 
-/**
- * Card glass de una sección de reporte: título + descripción + contenido.
- * Fase 3: el contenido ya es el widget conectado a su hook (con datos mock);
- * el contenedor no cambia entre fases.
- */
+/** Card glass de una sección de reporte: título + descripción + contenido (widget conectado a su hook). */
 export function ReportSectionCard({
   section,
   index,

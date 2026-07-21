@@ -1,9 +1,9 @@
 import type { AdminReportSection } from "@/modules/admin/types";
 
 /**
- * Las 7 secciones de reporte definidas en ADMIN_ANALYTICS_PLAN.md §13. Fase 2
- * solo las presenta como placeholders; cada una gana su propio hook/servicio
- * cuando se implemente (ver el plan para el mapeo endpoint → reporte).
+ * Las 7 secciones de reporte definidas en ADMIN_ANALYTICS_PLAN.md §13 — cada
+ * una con su propio hook/servicio/endpoint (ver el plan para el mapeo
+ * endpoint → reporte).
  */
 export const REPORT_SECTIONS: AdminReportSection[] = [
   {

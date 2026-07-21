@@ -1,11 +1,10 @@
 /**
- * Tipos del módulo Admin. Fase 3: la forma de estos tipos es el contrato
- * estable entre mocks (hoy) y OpenProject (Fase 4) — `admin-analytics.service.ts`
- * seguirá devolviendo exactamente estas formas cuando deje de usar mocks.
+ * Tipos del módulo Admin — contrato estable entre `admin-analytics.service.ts`
+ * (cliente) y los repositories (servidor, con OpenProject real desde Fase 4).
  * Ver ADMIN_ANALYTICS_PLAN.md §2.5/§12/§13 para el origen de cada campo.
  */
 
-/** Metadatos de una sección de reporte (título/descripción del placeholder — ver utils/report-sections.ts). */
+/** Metadatos de una sección de reporte (título/descripción — ver utils/report-sections.ts). */
 export interface AdminReportSection {
   id: string;
   title: string;
@@ -68,15 +67,6 @@ export interface TicketDistribution {
   groupName: string;
   ticketCount: number;
   estimatedHours: number;
-}
-
-/** Fila genérica para `RankingTable` — cualquier reporte de ranking se proyecta a esta forma. */
-export interface RankingItem {
-  id: string;
-  name: string;
-  value: number;
-  secondaryValue?: number;
-  secondaryLabel?: string;
 }
 
 /** Ranking de desarrolladores con sus 4 métricas (la tabla es ordenable por cualquiera). */

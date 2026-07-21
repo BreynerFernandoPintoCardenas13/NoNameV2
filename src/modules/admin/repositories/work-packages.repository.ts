@@ -113,26 +113,47 @@ async function sumEstimatedHours(
   return iso8601DurationToHours(result.totalSums?.estimatedTime as string | null | undefined);
 }
 
-/** Atajos de las tres ventanas fijas del Dashboard General, relativas a `now`. */
+/**
+ * Ejecuta una sub-consulta del resumen sin dejar que su fallo tumbe las
+ * demás — la instancia real de OpenProject tiene un bug de servidor
+ * confirmado (`InternalServerError`, "undefined method '[]' for nil:
+ * NilClass") en ciertos rangos de fecha que tocan "hoy", inconsistente
+ * según el operador/campo usado (`<>d`, `t`, `w`, todos probados en vivo).
+ * No es un bug nuestro y no hay forma de evitarlo desde el cliente — se
+ * degrada a `null` en vez de propagar el error y romper todo el Dashboard
+ * General por una sola ventana temporal afectada.
+ */
+async function settleOrNull<T>(promise: Promise<T>): Promise<T | null> {
+  try {
+    return await promise;
+  } catch (error) {
+    console.error("Sub-consulta del resumen del panel falló (se degrada a null):", error);
+    return null;
+  }
+}
+
+export interface FixedWindowCounts {
+  today: number | null;
+  week: { current: number; previous: number; changePercent: number | null } | null;
+  month: { current: number; previous: number; changePercent: number | null } | null;
+  estimatedHoursThisMonth: number | null;
+}
+
+/** Atajos de las tres ventanas fijas del Dashboard General, relativas a `now`. Resiliente por ventana (ver `settleOrNull`). */
 export async function getFixedWindowCounts(
   service: OpenProjectService,
   filters: AdminFilters,
   now: Date = new Date(),
-): Promise<{
-  today: number;
-  week: { current: number; previous: number; changePercent: number | null };
-  month: { current: number; previous: number; changePercent: number | null };
-  estimatedHoursThisMonth: number;
-}> {
+): Promise<FixedWindowCounts> {
   const dayRange = getDayRange(now);
   const weekRange = getWeekRange(now);
   const monthRange = getMonthRange(now);
 
   const [today, week, month, estimatedHoursThisMonth] = await Promise.all([
-    countWorkPackages(service, filters, dayRange),
-    countWorkPackagesWithVariation(service, filters, weekRange),
-    countWorkPackagesWithVariation(service, filters, monthRange),
-    sumEstimatedHours(service, filters, monthRange),
+    settleOrNull(countWorkPackages(service, filters, dayRange)),
+    settleOrNull(countWorkPackagesWithVariation(service, filters, weekRange)),
+    settleOrNull(countWorkPackagesWithVariation(service, filters, monthRange)),
+    settleOrNull(sumEstimatedHours(service, filters, monthRange)),
   ]);
 
   return { today, week, month, estimatedHoursThisMonth };

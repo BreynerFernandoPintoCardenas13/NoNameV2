@@ -7,6 +7,9 @@ import * as workPackagesRepo from "@/modules/admin/repositories/work-packages.re
 import { withAdminAuth } from "@/modules/admin/services/admin-route-helpers";
 import type { DashboardSummary } from "@/modules/admin/types";
 
+const OPENPROJECT_UNAVAILABLE_CAVEAT =
+  "No disponible temporalmente — error de OpenProject en este rango de fechas";
+
 /** Cards del Dashboard General: el único handler que combina varios repositories (ver ADMIN_ANALYTICS_PLAN.md §6). */
 export async function GET(request: NextRequest) {
   return withAdminAuth(request, async (filters, service): Promise<DashboardSummary> => {
@@ -21,24 +24,35 @@ export async function GET(request: NextRequest) {
 
     return {
       stats: [
-        { id: "tickets-today", label: "Tickets creados hoy", value: windowCounts.today },
+        {
+          id: "tickets-today",
+          label: "Tickets creados hoy",
+          value: windowCounts.today ?? 0,
+          caveat: windowCounts.today === null ? OPENPROJECT_UNAVAILABLE_CAVEAT : undefined,
+        },
         {
           id: "tickets-week",
           label: "Tickets esta semana",
-          value: windowCounts.week.current,
-          changePercent: windowCounts.week.changePercent ?? undefined,
+          value: windowCounts.week?.current ?? 0,
+          changePercent: windowCounts.week?.changePercent ?? undefined,
+          caveat: windowCounts.week === null ? OPENPROJECT_UNAVAILABLE_CAVEAT : undefined,
         },
         {
           id: "tickets-month",
           label: "Tickets este mes",
-          value: windowCounts.month.current,
-          changePercent: windowCounts.month.changePercent ?? undefined,
+          value: windowCounts.month?.current ?? 0,
+          changePercent: windowCounts.month?.changePercent ?? undefined,
+          caveat: windowCounts.month === null ? OPENPROJECT_UNAVAILABLE_CAVEAT : undefined,
         },
         {
           id: "estimated-hours-month",
           label: "Horas estimadas este mes",
-          value: Math.round(windowCounts.estimatedHoursThisMonth),
+          value: Math.round(windowCounts.estimatedHoursThisMonth ?? 0),
           unit: "h",
+          caveat:
+            windowCounts.estimatedHoursThisMonth === null
+              ? OPENPROJECT_UNAVAILABLE_CAVEAT
+              : undefined,
         },
         { id: "active-projects", label: "Proyectos activos", value: activeProjects },
         {

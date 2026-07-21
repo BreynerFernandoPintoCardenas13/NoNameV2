@@ -12,10 +12,10 @@ import { ReportSectionCard } from "@/modules/admin/components/ReportSectionCard"
 import { StatCard } from "@/modules/admin/components/StatCard";
 import { ActivityTableSkeleton } from "@/modules/admin/components/skeletons/ActivityTableSkeleton";
 import { BarChartSkeleton } from "@/modules/admin/components/skeletons/BarChartSkeleton";
-import { DonutChartSkeleton } from "@/modules/admin/components/skeletons/DonutChartSkeleton";
 import { LineChartSkeleton } from "@/modules/admin/components/skeletons/LineChartSkeleton";
 import { RankingListSkeleton } from "@/modules/admin/components/skeletons/RankingListSkeleton";
 import { StatCardSkeleton } from "@/modules/admin/components/skeletons/StatCardSkeleton";
+import { TimeBreakdownSkeleton } from "@/modules/admin/components/skeletons/TimeBreakdownSkeleton";
 import { TimeBreakdownPanel } from "@/modules/admin/components/TimeBreakdownPanel";
 import { TrendChart } from "@/modules/admin/components/TrendChart";
 import { useAdminFilters } from "@/modules/admin/hooks/useAdminFilters";
@@ -166,7 +166,7 @@ export function AdminDashboardPage() {
           {timeBreakdown.isError ? (
             <SectionError message="No se pudo cargar el tiempo trabajado." />
           ) : timeBreakdown.isLoading || !timeBreakdown.data ? (
-            <DonutChartSkeleton />
+            <TimeBreakdownSkeleton />
           ) : (
             <div className={fetchingClass(timeBreakdown.isFetching)}>
               <TimeBreakdownPanel summary={timeBreakdown.data} />

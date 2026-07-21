@@ -1,11 +1,13 @@
 "use client";
 
-import { PanelLeftClose, PanelLeftOpen, Plus, Settings } from "lucide-react";
+import { ChartColumnBig, PanelLeftClose, PanelLeftOpen, Plus, Settings } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@/modules/auth/components/SignOutButton";
+import { useCurrentUser } from "@/modules/auth/hooks/useCurrentUser";
+import { ROLES } from "@/modules/auth/types";
 import { ProjectModal } from "@/modules/projects/components/ProjectModal";
 import { ProjectsTree } from "@/modules/projects/components/ProjectsTree";
 import type { LocalProject } from "@/modules/projects/types";
@@ -22,6 +24,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [editingProject, setEditingProject] = React.useState<LocalProject | null>(null);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [activeProject, setActiveProject] = React.useState<LocalProject | null>(null);
+  const { data: currentUser } = useCurrentUser();
+  // Ocultar el ítem para otros roles es solo cortesía de UX: la barrera real
+  // vive en app/dashboard/admin/page.tsx, del lado del servidor.
+  const isAdmin = currentUser?.role === ROLES.ADMIN || currentUser?.role === ROLES.SUPERADMIN;
 
   const openCreate = () => {
     setEditingProject(null);
@@ -67,10 +73,20 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         {!collapsed && (
           <>
-            <div className="px-3 pb-2">
+            <div className="flex flex-col gap-2 px-3 pb-2">
               <Button variant="outline" size="sm" className="w-full" onClick={openCreate}>
                 <Plus /> Crear proyecto
               </Button>
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  render={<a href="/dashboard/admin" target="_blank" rel="noopener noreferrer" />}
+                >
+                  <ChartColumnBig /> Panel Administrador
+                </Button>
+              )}
             </div>
 
             <nav className="flex-1 overflow-y-auto pb-2" aria-label="Proyectos">

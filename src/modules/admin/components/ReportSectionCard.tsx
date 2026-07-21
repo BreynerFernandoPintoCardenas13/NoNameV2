@@ -4,7 +4,6 @@ import { motion } from "motion/react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HoverLift } from "@/components/shared/hover-lift";
-import { ReportSectionSkeleton } from "@/modules/admin/components/skeletons/ReportSectionSkeleton";
 import type { AdminReportSection } from "@/modules/admin/types";
 
 interface ReportSectionCardProps {
@@ -13,14 +12,20 @@ interface ReportSectionCardProps {
   index: number;
   /** Ocupa el ancho completo de la grilla (usado por "Dashboard General"). */
   featured?: boolean;
+  children: React.ReactNode;
 }
 
 /**
- * Card glass de una sección de reporte. Fase 2: solo título + descripción +
- * skeleton — cada reporte real reemplaza el skeleton por su contenido cuando
- * se implemente, sin cambiar el contenedor.
+ * Card glass de una sección de reporte: título + descripción + contenido.
+ * Fase 3: el contenido ya es el widget conectado a su hook (con datos mock);
+ * el contenedor no cambia entre fases.
  */
-export function ReportSectionCard({ section, index, featured = false }: ReportSectionCardProps) {
+export function ReportSectionCard({
+  section,
+  index,
+  featured = false,
+  children,
+}: ReportSectionCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -35,9 +40,7 @@ export function ReportSectionCard({ section, index, featured = false }: ReportSe
             <CardTitle className="text-[#f7f7f7]">{section.title}</CardTitle>
             <CardDescription className="text-white/55">{section.description}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ReportSectionSkeleton />
-          </CardContent>
+          <CardContent>{children}</CardContent>
         </Card>
       </HoverLift>
     </motion.div>

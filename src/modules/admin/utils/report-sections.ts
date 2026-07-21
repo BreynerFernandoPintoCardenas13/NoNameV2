@@ -42,3 +42,10 @@ export const REPORT_SECTIONS: AdminReportSection[] = [
     description: "Tickets actualizados recientemente: proyecto, responsable, PM y fecha.",
   },
 ];
+
+/** Metadatos de una sección por id — evita repetir título/descripción al componer la página. */
+export function getReportSection(id: string): AdminReportSection {
+  const section = REPORT_SECTIONS.find((candidate) => candidate.id === id);
+  if (!section) throw new Error(`Sección de reporte desconocida: ${id}`);
+  return section;
+}

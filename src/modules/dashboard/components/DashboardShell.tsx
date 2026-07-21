@@ -82,6 +82,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                   variant="outline"
                   size="sm"
                   className="w-full"
+                  nativeButton={false}
                   render={<a href="/dashboard/admin" target="_blank" rel="noopener noreferrer" />}
                 >
                   <ChartColumnBig /> Panel Administrador

@@ -20,4 +20,5 @@ export const adminQueryKeys = {
     [...adminQueryKeys.all, "time-breakdown", filters] as const,
   recentActivity: (filters: AdminFilters) =>
     [...adminQueryKeys.all, "recent-activity", filters] as const,
+  filterOptions: () => [...adminQueryKeys.all, "filter-options"] as const,
 };

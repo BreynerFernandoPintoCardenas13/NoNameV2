@@ -1,5 +1,6 @@
 import type {
   ActivityItem,
+  AdminFilterOptions,
   AdminFilters,
   DashboardSummary,
   DeveloperRankingItem,
@@ -64,4 +65,16 @@ export async function getTimeSummary(filters: AdminFilters): Promise<TimeSummary
 
 export async function getRecentActivity(filters: AdminFilters): Promise<ActivityItem[]> {
   return fetchAdminReport<ActivityItem[]>("recent-activity", filters);
+}
+
+/** Opciones de `FilterBar` (proyectos/usuarios/desarrolladores) — no depende de los filtros actuales. */
+export async function getFilterOptions(): Promise<AdminFilterOptions> {
+  const res = await fetch("/api/admin/filter-options");
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (body as { error?: string }).error ?? "No se pudieron cargar las opciones de filtro.",
+    );
+  }
+  return body as AdminFilterOptions;
 }

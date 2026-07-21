@@ -9,12 +9,12 @@ import type { DashboardSummary } from "@/modules/admin/types";
 
 /** Cards del Dashboard General: el único handler que combina varios repositories (ver ADMIN_ANALYTICS_PLAN.md §6). */
 export async function GET(request: NextRequest) {
-  return withAdminAuth(request, async (filters): Promise<DashboardSummary> => {
+  return withAdminAuth(request, async (filters, service): Promise<DashboardSummary> => {
     const [windowCounts, activeProjects, activeOpenProjectUsers, activePms, processedMeetings] =
       await Promise.all([
-        workPackagesRepo.getFixedWindowCounts(filters),
-        projectsRepo.countActiveProjects(),
-        membershipsRepo.countActiveOpenProjectUsers(),
+        workPackagesRepo.getFixedWindowCounts(service, filters),
+        projectsRepo.countActiveProjects(service),
+        membershipsRepo.countActiveOpenProjectUsers(service),
         internalMetricsRepo.countActivePms(),
         internalMetricsRepo.countProcessedMeetings(),
       ]);

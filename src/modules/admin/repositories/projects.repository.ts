@@ -1,12 +1,12 @@
 import "server-only";
 
-import { PROJECTS } from "@/modules/admin/services/mock-admin-data";
+import type { OpenProjectService } from "@/modules/openproject/services/openproject.service";
 
 /**
  * Acceso de bajo nivel a `/api/v3/projects` (ver ADMIN_ANALYTICS_PLAN.md
- * §1.4). Fase 3.5: lógica real sobre `PROJECTS` (el catálogo mock) — en
- * Fase 4 esto pasa a filtrar la respuesta real de OpenProject por
- * `active=true`, sin cambiar la firma de ninguna función.
+ * §1.4). "Activo" = `active: true` (no archivado) — no implica actividad
+ * reciente (esa señal, si hiciera falta, sería `latest_activity_at`, fuera
+ * de alcance de los reportes pedidos).
  */
 
 export interface OpenProjectProjectOption {
@@ -14,12 +14,22 @@ export interface OpenProjectProjectOption {
   name: string;
 }
 
-/** `filters=[active=true]`, cuenta vía `total` de la respuesta. Todos los proyectos mock están activos. */
-export async function countActiveProjects(): Promise<number> {
-  return PROJECTS.length;
+const ACTIVE_FILTER = JSON.stringify([{ active: { operator: "=", values: ["t"] } }]);
+
+/** `filters=[active=true]`, cuenta vía `total` de la respuesta — nunca trae filas. */
+export async function countActiveProjects(service: OpenProjectService): Promise<number> {
+  const { total } = await service.queryProjects({ filters: ACTIVE_FILTER, pageSize: 1 });
+  return total;
 }
 
-/** Lista liviana para poblar el selector de proyecto en `FilterBar`. */
-export async function listProjectOptions(): Promise<OpenProjectProjectOption[]> {
-  return PROJECTS.map((project) => ({ id: project.id, name: project.name }));
+/**
+ * Lista liviana para poblar el selector de proyecto en `FilterBar` (vía
+ * `/api/admin/filter-options`). `pageSize: 500` cubre con holgura el total
+ * real de proyectos activos observado en la instancia (401) sin paginar.
+ */
+export async function listProjectOptions(
+  service: OpenProjectService,
+): Promise<OpenProjectProjectOption[]> {
+  const { elements } = await service.queryProjects({ filters: ACTIVE_FILTER, pageSize: 500 });
+  return elements.map((project) => ({ id: String(project.id), name: project.name }));
 }

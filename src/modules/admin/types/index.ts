@@ -12,6 +12,13 @@ export interface AdminReportSection {
   description: string;
 }
 
+/** Opciones para poblar los selectores de `FilterBar` — proyectos/usuarios/desarrolladores de OpenProject. */
+export interface AdminFilterOptions {
+  projects: { id: string; name: string }[];
+  users: { id: string; name: string }[];
+  developers: { id: string; name: string }[];
+}
+
 /** Filtros globales compartidos por todo el panel (ver §14 del plan). */
 export interface AdminFilters {
   dateFrom: string | null;

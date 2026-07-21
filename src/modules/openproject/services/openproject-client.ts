@@ -7,11 +7,18 @@ import {
   type CreateWorkPackageInput,
   type CurrentUser,
   type ImageInput,
+  type MembershipListItem,
   OpenProjectApiError,
   type OpenProjectProject,
   type OpenProjectUser,
+  type ProjectListItem,
+  type StatusListItem,
   type TicketSection,
+  type TimeEntryListItem,
+  type UserListItem,
   type WorkPackage,
+  type WorkPackageCollection,
+  type WorkPackageQueryParams,
   type WorkPackageType,
 } from "@/modules/openproject/types";
 
@@ -259,6 +266,87 @@ export class OpenProjectClient {
         description: { format: "markdown", raw: finalDescriptionRaw },
       }),
     });
+  }
+  // --- Panel Administrador (ver ADMIN_ANALYTICS_PLAN.md §1/§2.1): métodos de
+  // consulta cruda añadidos al mismo cliente, sin HTTP paralelo. `query*`
+  // (no `list*`) para no chocar con los `list*` de arriba, que sirven un
+  // caso de uso distinto (opciones fijas de formulario, sin filtros/total).
+
+  /** Colección cruda de `/api/v3/work_packages`: filtros/groupBy/showSums/select/orden/paginación (§1.2/§3). */
+  async queryWorkPackages(params: WorkPackageQueryParams = {}): Promise<WorkPackageCollection> {
+    const query = new URLSearchParams();
+    if (params.filters) query.set("filters", params.filters);
+    if (params.groupBy) query.set("groupBy", params.groupBy);
+    if (params.showSums) query.set("showSums", "true");
+    if (params.select) query.set("select", params.select);
+    if (params.sortBy) query.set("sortBy", params.sortBy);
+    if (params.offset !== undefined) query.set("offset", String(params.offset));
+    if (params.pageSize !== undefined) query.set("pageSize", String(params.pageSize));
+    return this.request<WorkPackageCollection>(`/api/v3/work_packages?${query.toString()}`);
+  }
+
+  /** Proyectos con filtros/paginación/total — a diferencia de `listProjects()`, pensado para reportes (§1.4). */
+  async queryProjects(
+    params: { filters?: string; pageSize?: number } = {},
+  ): Promise<{ total: number; elements: ProjectListItem[] }> {
+    const query = new URLSearchParams();
+    if (params.filters) query.set("filters", params.filters);
+    query.set("pageSize", String(params.pageSize ?? 1));
+    const result = await this.request<{
+      total: number;
+      _embedded: { elements: ProjectListItem[] };
+    }>(`/api/v3/projects?${query.toString()}`);
+    return { total: result.total, elements: result._embedded.elements };
+  }
+
+  /** Usuarios con filtros/paginación/total (§1.5). */
+  async queryUsers(
+    params: { filters?: string; pageSize?: number } = {},
+  ): Promise<{ total: number; elements: UserListItem[] }> {
+    const query = new URLSearchParams();
+    if (params.filters) query.set("filters", params.filters);
+    query.set("pageSize", String(params.pageSize ?? 1));
+    const result = await this.request<{ total: number; _embedded: { elements: UserListItem[] } }>(
+      `/api/v3/users?${query.toString()}`,
+    );
+    return { total: result.total, elements: result._embedded.elements };
+  }
+
+  /** Memberships (usuario↔proyecto↔rol) — única tabla de unión real (§1.6). */
+  async queryMemberships(
+    params: { filters?: string; pageSize?: number } = {},
+  ): Promise<{ total: number; elements: MembershipListItem[] }> {
+    const query = new URLSearchParams();
+    if (params.filters) query.set("filters", params.filters);
+    query.set("pageSize", String(params.pageSize ?? 100));
+    const result = await this.request<{
+      total: number;
+      _embedded: { elements: MembershipListItem[] };
+    }>(`/api/v3/memberships?${query.toString()}`);
+    return { total: result.total, elements: result._embedded.elements };
+  }
+
+  /** Time entries — horas REALES registradas, distinto de `estimatedTime` (§1.7). Sin agregación nativa. */
+  async queryTimeEntries(
+    params: { filters?: string; pageSize?: number; offset?: number } = {},
+  ): Promise<{ total: number; elements: TimeEntryListItem[] }> {
+    const query = new URLSearchParams();
+    if (params.filters) query.set("filters", params.filters);
+    query.set("pageSize", String(params.pageSize ?? 100));
+    if (params.offset !== undefined) query.set("offset", String(params.offset));
+    const result = await this.request<{
+      total: number;
+      _embedded: { elements: TimeEntryListItem[] };
+    }>(`/api/v3/time_entries?${query.toString()}`);
+    return { total: result.total, elements: result._embedded.elements };
+  }
+
+  /** Catálogo global de statuses — `isClosed` es la base de "abierto/cerrado" (§1.9). Sin filtros, sin paginar. */
+  async listStatuses(): Promise<StatusListItem[]> {
+    const result = await this.request<{ _embedded: { elements: StatusListItem[] } }>(
+      "/api/v3/statuses",
+    );
+    return result._embedded.elements;
   }
 }
 

@@ -5,5 +5,5 @@ import { withAdminAuth } from "@/modules/admin/services/admin-route-helpers";
 
 /** Tendencia de tickets: fetch + bucketing propio (OpenProject no agrupa por fecha). */
 export async function GET(request: NextRequest) {
-  return withAdminAuth(request, (filters) => getTicketTrend(filters));
+  return withAdminAuth(request, (filters, service) => getTicketTrend(service, filters));
 }

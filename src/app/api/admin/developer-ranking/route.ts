@@ -5,5 +5,5 @@ import { withAdminAuth } from "@/modules/admin/services/admin-route-helpers";
 
 /** Ranking de desarrolladores: tickets, horas, proyectos distintos y carga compuesta. */
 export async function GET(request: NextRequest) {
-  return withAdminAuth(request, (filters) => getDeveloperRanking(filters));
+  return withAdminAuth(request, (filters, service) => getDeveloperRanking(service, filters));
 }

@@ -16,7 +16,7 @@ const FEATURES = [
     number: "02",
     title: "Guarda Notas y Decisiones",
     description:
-      "Registra observaciones, compromisos, avances, reuniones y demas información relevante.",
+      "Registra observaciones, compromisos, avances, reuniones y demas datos relevantes.",
   },
   {
     number: "03",

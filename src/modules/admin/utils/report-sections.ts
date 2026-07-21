@@ -1,0 +1,51 @@
+import type { AdminReportSection } from "@/modules/admin/types";
+
+/**
+ * Las 7 secciones de reporte definidas en ADMIN_ANALYTICS_PLAN.md §13 — cada
+ * una con su propio hook/servicio/endpoint (ver el plan para el mapeo
+ * endpoint → reporte).
+ */
+export const REPORT_SECTIONS: AdminReportSection[] = [
+  {
+    id: "dashboard-general",
+    title: "Dashboard General",
+    description: "Tickets creados hoy/semana/mes, horas estimadas, proyectos y usuarios activos.",
+  },
+  {
+    id: "ticket-trend",
+    title: "Tendencia de Tickets",
+    description: "Tickets por día, semana y mes, comparados contra el período anterior.",
+  },
+  {
+    id: "tickets-by-pm",
+    title: "Tickets por Project Manager",
+    description: "Ranking, gráfica y tabla de tickets agrupados por responsable.",
+  },
+  {
+    id: "tickets-by-project",
+    title: "Tickets por Proyecto",
+    description: "Ranking, gráfica y tabla de tickets agrupados por proyecto.",
+  },
+  {
+    id: "developer-ranking",
+    title: "Ranking de Desarrolladores",
+    description: "Más tickets asignados, más horas estimadas, más proyectos y mayor carga.",
+  },
+  {
+    id: "time-breakdown",
+    title: "Tiempo Trabajado",
+    description: "Horas por proyecto, por desarrollador, por PM y promedios por ticket.",
+  },
+  {
+    id: "recent-activity",
+    title: "Actividad Reciente",
+    description: "Tickets actualizados recientemente: proyecto, responsable, PM y fecha.",
+  },
+];
+
+/** Metadatos de una sección por id — evita repetir título/descripción al componer la página. */
+export function getReportSection(id: string): AdminReportSection {
+  const section = REPORT_SECTIONS.find((candidate) => candidate.id === id);
+  if (!section) throw new Error(`Sección de reporte desconocida: ${id}`);
+  return section;
+}

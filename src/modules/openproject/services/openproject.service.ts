@@ -9,10 +9,17 @@ import type {
   Board,
   BoardColumn,
   CurrentUser,
+  MembershipListItem,
   OpenProjectProject,
   OpenProjectUser,
+  ProjectListItem,
+  StatusListItem,
   TicketDraft,
+  TimeEntryListItem,
+  UserListItem,
   WorkPackage,
+  WorkPackageCollection,
+  WorkPackageQueryParams,
 } from "@/modules/openproject/types";
 import { hoursToIso8601Duration } from "@/modules/openproject/utils/duration";
 
@@ -130,6 +137,50 @@ export class OpenProjectService {
       }
     }
     return created;
+  }
+
+  // --- Panel Administrador (ver ADMIN_ANALYTICS_PLAN.md §2.1): passthrough
+  // hacia los nuevos métodos `query*`/`listStatuses` de `OpenProjectClient`,
+  // reutilizando `this.client` — sin cliente HTTP paralelo.
+
+  async queryWorkPackages(params: WorkPackageQueryParams): Promise<WorkPackageCollection> {
+    return this.client.queryWorkPackages(params);
+  }
+
+  async queryProjects(params: { filters?: string; pageSize?: number }): Promise<{
+    total: number;
+    elements: ProjectListItem[];
+  }> {
+    return this.client.queryProjects(params);
+  }
+
+  async queryUsers(params: { filters?: string; pageSize?: number }): Promise<{
+    total: number;
+    elements: UserListItem[];
+  }> {
+    return this.client.queryUsers(params);
+  }
+
+  async queryMemberships(params: { filters?: string; pageSize?: number }): Promise<{
+    total: number;
+    elements: MembershipListItem[];
+  }> {
+    return this.client.queryMemberships(params);
+  }
+
+  async queryTimeEntries(params: {
+    filters?: string;
+    pageSize?: number;
+    offset?: number;
+  }): Promise<{
+    total: number;
+    elements: TimeEntryListItem[];
+  }> {
+    return this.client.queryTimeEntries(params);
+  }
+
+  async listStatuses(): Promise<StatusListItem[]> {
+    return this.client.listStatuses();
   }
 
   /**

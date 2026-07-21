@@ -175,6 +175,7 @@ export function TicketFlow({ editor, noteId, projectId, onDocumentUpdated }: Tic
                 <Button
                   variant="outline"
                   size="sm"
+                  nativeButton={false}
                   render={<a href={ticket.url} target="_blank" rel="noopener noreferrer" />}
                 >
                   <ExternalLink /> Abrir

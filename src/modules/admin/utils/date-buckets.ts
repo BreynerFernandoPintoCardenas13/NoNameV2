@@ -97,3 +97,27 @@ export function previousPeriod(from: Date, to: Date): { from: Date; to: Date } {
   const previousFrom = new Date(previousTo.getTime() - durationMs);
   return { from: previousFrom, to: previousTo };
 }
+
+/**
+ * Ventanas fijas de calendario (hoy/esta semana/este mes), usadas por las
+ * cards del Dashboard General — reciben `now` en vez de leer el reloj ellas
+ * mismas, para seguir siendo funciones puras (Fase 4 les pasa `new Date()`
+ * real; los repositories con mocks le pasan su fecha ancla fija).
+ */
+export function getDayRange(now: Date): { from: Date; to: Date } {
+  const from = startOfDay(now);
+  const to = new Date(from.getTime() + DAY_MS - 1);
+  return { from, to };
+}
+
+export function getWeekRange(now: Date): { from: Date; to: Date } {
+  const from = startOfWeek(now);
+  const to = new Date(from.getTime() + 7 * DAY_MS - 1);
+  return { from, to };
+}
+
+export function getMonthRange(now: Date): { from: Date; to: Date } {
+  const from = startOfMonth(now);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  return { from, to };
+}

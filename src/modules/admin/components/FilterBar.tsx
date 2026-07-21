@@ -12,11 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  MOCK_DEVELOPER_RANKING,
-  MOCK_TICKETS_BY_PM,
-  MOCK_TICKETS_BY_PROJECT,
-} from "@/modules/admin/services/mock-admin-data";
+import { DEVELOPERS, PMS, PROJECTS } from "@/modules/admin/services/mock-admin-data";
 import type { AdminFilters } from "@/modules/admin/types";
 
 interface FilterBarProps {
@@ -28,9 +24,9 @@ interface FilterBarProps {
 // Sin OpenProject conectado todavía, las opciones salen de los mismos mocks
 // que alimentan los reportes (ver ADMIN_ANALYTICS_PLAN.md §14) — en Fase 4
 // vendrán de projects.repository/memberships.repository vía Route Handler.
-const PROJECT_OPTIONS = MOCK_TICKETS_BY_PROJECT.map((p) => ({ id: p.groupId, name: p.groupName }));
-const PM_OPTIONS = MOCK_TICKETS_BY_PM.map((pm) => ({ id: pm.groupId, name: pm.groupName }));
-const DEVELOPER_OPTIONS = MOCK_DEVELOPER_RANKING.map((dev) => ({ id: dev.id, name: dev.name }));
+const PROJECT_OPTIONS = PROJECTS;
+const PM_OPTIONS = PMS;
+const DEVELOPER_OPTIONS = DEVELOPERS;
 
 /** Filtros globales del panel — comparten estado con la URL vía `useAdminFilters`. */
 export function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
@@ -97,7 +93,7 @@ function FilterSelect({
 }: {
   label: string;
   value: string | null;
-  options: { id: string; name: string }[];
+  options: readonly { id: string; name: string }[];
   onChange: (value: string | null) => void;
 }) {
   return (

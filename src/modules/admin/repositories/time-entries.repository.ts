@@ -1,5 +1,6 @@
 import "server-only";
 
+import { MOCK_TIME_ENTRIES } from "@/modules/admin/services/mock-admin-data";
 import type { AdminFilters } from "@/modules/admin/types";
 
 /**
@@ -19,6 +20,11 @@ export interface RawTimeEntry {
 }
 
 export async function listTimeEntries(filters: AdminFilters): Promise<RawTimeEntry[]> {
-  void filters;
-  throw new Error("Not implemented");
+  return MOCK_TIME_ENTRIES.filter((entry) => {
+    if (filters.dateFrom && entry.spentOn < filters.dateFrom) return false;
+    if (filters.dateTo && entry.spentOn > filters.dateTo) return false;
+    if (filters.projectId && entry.projectId !== filters.projectId) return false;
+    if (filters.developerId && entry.userId !== filters.developerId) return false;
+    return true;
+  });
 }

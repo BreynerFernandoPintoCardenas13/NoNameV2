@@ -26,7 +26,7 @@ export function QuienLoHizoSection() {
           Construido por alguien que necesitaba exactamente esto.
         </h2>
         <p className="mx-auto max-w-[520px] text-[15px] leading-[1.7] text-white/70">
-          Un proyecto personal, hecho con cuidado y amor, para habilianar la carga, modernizar y que
+          Un proyecto personal, hecho con cuidado y amor, para alivianar la carga, modernizar y que
           ya no tengas que saltarte el almuerzo y trabajar hasta tarde todos los días.
         </p>
 

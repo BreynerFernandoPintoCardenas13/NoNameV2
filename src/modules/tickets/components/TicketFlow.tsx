@@ -16,6 +16,27 @@ import type {
   PublicTicketDraft,
 } from "@/modules/tickets/types";
 
+/**
+ * El servidor ya adjunta el body de error real de OpenProject en `details`
+ * (ver `api/meeting-notes/create-tickets/route.ts`), pero hasta ahora nunca
+ * se leía — el usuario solo veía el string genérico "Error de OpenProject".
+ * OpenProject devuelve `{ message }` para un error simple o
+ * `{ _embedded: { errors: [{ message }, ...] } }` para varios a la vez
+ * (ej. un campo "Asignado a"/"Responsable" que ya no es válido para ese
+ * proyecto).
+ */
+function extractOpenProjectErrorMessage(details: unknown): string | null {
+  if (typeof details !== "object" || details === null) return null;
+  const body = details as {
+    message?: string;
+    _embedded?: { errors?: { message?: string }[] };
+  };
+  const messages = body._embedded?.errors?.map((e) => e.message).filter(Boolean) as
+    string[] | undefined;
+  if (messages && messages.length > 0) return messages.join(" · ");
+  return body.message ?? null;
+}
+
 interface TicketFlowProps {
   editor: Editor | null;
   noteId: string;
@@ -82,8 +103,15 @@ export function TicketFlow({ editor, noteId, projectId, onDocumentUpdated }: Tic
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ analysisId: review.analysisId }),
       });
-      const body = (await res.json()) as CreateTicketsResponse & { error?: string };
-      if (!res.ok) throw new Error(body.error ?? "Error desconocido");
+      const body = (await res.json()) as CreateTicketsResponse & {
+        error?: string;
+        details?: unknown;
+      };
+      if (!res.ok) {
+        throw new Error(
+          extractOpenProjectErrorMessage(body.details) ?? body.error ?? "Error desconocido",
+        );
+      }
 
       if (body.document) onDocumentUpdated(body.document as MeetingDocument);
       setReview(null);

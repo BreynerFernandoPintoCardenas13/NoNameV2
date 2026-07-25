@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { BlockPlusButton } from "@/modules/notes/components/BlockPlusButton";
+import { DictateTicketDialog } from "@/modules/notes/components/DictateTicketDialog";
 import { EditorBubbleMenu } from "@/modules/notes/components/EditorBubbleMenu";
 import { ExportNoteButton } from "@/modules/notes/components/ExportNoteButton";
 import {
@@ -64,6 +65,7 @@ export function NoteEditor({
   const [participantsState, setParticipantsState] = React.useState<ParticipantsDialogState | null>(
     null,
   );
+  const [dictateOpen, setDictateOpen] = React.useState(false);
 
   // El registry se crea una sola vez: los chips reabren el mismo modal que
   // el menú "+", tanto para fijar por primera vez como para editar.
@@ -193,6 +195,7 @@ export function NoteEditor({
           editor={editor}
           containerRef={containerRef}
           onPickMetadata={setDialogKind}
+          onDictateTicket={() => setDictateOpen(true)}
           extraItems={[
             {
               label: "Reunión",
@@ -217,6 +220,7 @@ export function NoteEditor({
         onClose={() => setParticipantsState(null)}
         projectId={note.projectId}
       />
+      <DictateTicketDialog editor={editor} open={dictateOpen} onOpenChange={setDictateOpen} />
     </div>
   );
 }

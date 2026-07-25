@@ -1,7 +1,7 @@
 "use client";
 
 import type { Editor } from "@tiptap/core";
-import { CalendarDays, Plus, Timer, UserRound } from "lucide-react";
+import { CalendarDays, Mic, Plus, Timer, UserRound } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { MetadataDialogKind } from "@/modules/notes/components/MetadataDialogs";
@@ -18,6 +19,8 @@ interface BlockPlusButtonProps {
   /** Contenedor relativo respecto al cual se posiciona el botón. */
   containerRef: React.RefObject<HTMLDivElement | null>;
   onPickMetadata: (kind: Exclude<MetadataDialogKind, null>) => void;
+  /** Abre el modal de dictado por voz ("Dictar Ticket"). */
+  onDictateTicket: () => void;
   /** Acciones extra del menú (p. ej. "Reunión" en Fase 3). */
   extraItems?: { label: string; icon: React.ReactNode; onSelect: () => void }[];
 }
@@ -43,6 +46,7 @@ export function BlockPlusButton({
   editor,
   containerRef,
   onPickMetadata,
+  onDictateTicket,
   extraItems,
 }: BlockPlusButtonProps) {
   const [position, setPosition] = React.useState<{ top: number; left: number } | null>(null);
@@ -111,6 +115,10 @@ export function BlockPlusButton({
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onPickMetadata("dueDate")}>
             <CalendarDays /> Fecha límite
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={onDictateTicket}>
+            <Mic /> Dictar Ticket
           </DropdownMenuItem>
           {extraItems?.map((item) => (
             <DropdownMenuItem key={item.label} onClick={item.onSelect}>

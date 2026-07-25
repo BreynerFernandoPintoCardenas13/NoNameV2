@@ -118,12 +118,14 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof OpenProjectApiError) {
+      console.error("OpenProject rechazó la creación de tickets:", error.status, error.body);
       return NextResponse.json(
         { error: "Error de OpenProject", details: error.body },
         { status: error.status },
       );
     }
     console.error("Error creando tickets:", error);
-    return NextResponse.json({ error: "Error inesperado en el servidor" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Error inesperado en el servidor";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

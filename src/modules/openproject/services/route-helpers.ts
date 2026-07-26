@@ -2,6 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 
+import { logger } from "@/lib/logger";
 import { getSupabaseServerClient } from "@/modules/auth/services/supabase.server";
 import { OpenProjectService } from "@/modules/openproject/services/openproject.service";
 import { NO_API_KEY_ERROR, OpenProjectApiError } from "@/modules/openproject/types";
@@ -40,7 +41,7 @@ export async function withOpenProject(
         { status: error.status },
       );
     }
-    console.error("Error inesperado hablando con OpenProject:", error);
+    logger.error("Error inesperado hablando con OpenProject:", error);
     return NextResponse.json({ error: "Error inesperado en el servidor" }, { status: 500 });
   }
 }

@@ -1,7 +1,9 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { logger } from "@/lib/logger";
 import { getAppUserByAuthId } from "@/modules/auth/services/auth.service";
 import { getSupabaseServerClient } from "@/modules/auth/services/supabase.server";
 import { ROLES } from "@/modules/auth/types";
@@ -21,10 +23,14 @@ import { NO_API_KEY_ERROR, OpenProjectApiError } from "@/modules/openproject/typ
  *      handler", nunca se leen los params directo en la ruta.
  *   4. API Key de OpenProject del propio admin (§2.2, Opción A — 409 si no
  *      tiene una configurada, mismo contrato que `withOpenProject`).
- *   5. Llama al `handler` (que solo debe leer repositories) y responde
- *      `200`; `OpenProjectApiError` se traduce con el status original,
- *      cualquier otra excepción no controlada cae a `500`.
+ *   5. Llama al `handler` (que solo debe leer repositories), con el
+ *      resultado cacheado `CACHE_TTL_SECONDS` por admin+ruta+filtros (evita
+ *      pegarle a OpenProject en ráfagas de la misma vista, sin depender de
+ *      infra nueva) y responde `200`; `OpenProjectApiError` se traduce con
+ *      el status original, cualquier otra excepción no controlada cae a
+ *      `500`.
  */
+const CACHE_TTL_SECONDS = 60;
 export async function withAdminAuth(
   request: NextRequest,
   handler: (filters: AdminFilters, service: OpenProjectService) => Promise<unknown>,
@@ -61,7 +67,12 @@ export async function withAdminAuth(
   }
 
   try {
-    return NextResponse.json(await handler(parsed.data, service));
+    const cachedHandler = unstable_cache(
+      () => handler(parsed.data, service),
+      [request.nextUrl.pathname, user.id, JSON.stringify(parsed.data)],
+      { revalidate: CACHE_TTL_SECONDS },
+    );
+    return NextResponse.json(await cachedHandler());
   } catch (error) {
     if (error instanceof OpenProjectApiError) {
       return NextResponse.json(
@@ -69,7 +80,7 @@ export async function withAdminAuth(
         { status: error.status },
       );
     }
-    console.error("Error en un endpoint del Panel Administrador:", error);
+    logger.error("Error en un endpoint del Panel Administrador:", error);
     return NextResponse.json({ error: "Error inesperado en el servidor" }, { status: 500 });
   }
 }

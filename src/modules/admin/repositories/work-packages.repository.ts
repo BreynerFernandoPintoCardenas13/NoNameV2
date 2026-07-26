@@ -1,5 +1,6 @@
 import "server-only";
 
+import { logger } from "@/lib/logger";
 import type { OpenProjectService } from "@/modules/openproject/services/openproject.service";
 import type { WorkPackageCollection, WorkPackageListItem } from "@/modules/openproject/types";
 import type {
@@ -127,7 +128,7 @@ async function settleOrNull<T>(promise: Promise<T>): Promise<T | null> {
   try {
     return await promise;
   } catch (error) {
-    console.error("Sub-consulta del resumen del panel falló (se degrada a null):", error);
+    logger.error("Sub-consulta del resumen del panel falló (se degrada a null):", error);
     return null;
   }
 }

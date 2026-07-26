@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { getSupabaseBrowserClient } from "@/modules/auth/services/supabase.client";
 import {
   type LocalProject,
@@ -22,7 +23,7 @@ export async function listProjects(): Promise<LocalProject[]> {
     .select(COLUMNS)
     .order("created_at", { ascending: true });
   if (error) {
-    console.error("No se pudieron cargar los proyectos:", error);
+    logger.error("No se pudieron cargar los proyectos:", error);
     throw new Error(`No se pudieron cargar los proyectos (${error.message}).`);
   }
   return (data as ProjectRow[]).map(toLocalProject);

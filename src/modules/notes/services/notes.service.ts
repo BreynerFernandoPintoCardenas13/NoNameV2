@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { getSupabaseBrowserClient } from "@/modules/auth/services/supabase.client";
 import {
   EMPTY_DOCUMENT,
@@ -41,7 +42,7 @@ export async function listNotesByProject(projectId: string): Promise<MeetingNote
     .eq("project_id", projectId)
     .order("created_at", { ascending: true });
   if (error) {
-    console.error("No se pudieron cargar las notas:", error);
+    logger.error("No se pudieron cargar las notas:", error);
     throw new Error(`No se pudieron cargar las notas (${error.message}).`);
   }
   return (data as NoteRow[]).map(toSummary);

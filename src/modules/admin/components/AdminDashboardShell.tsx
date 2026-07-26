@@ -1,6 +1,13 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import * as React from "react";
 
-import { Beams } from "@/components/effects/beams";
+// Code splitting real: three.js/@react-three solo se descarga en el cliente,
+// nunca bloquea el SSR del panel admin.
+const Beams = dynamic(() => import("@/components/effects/beams").then((m) => m.Beams), {
+  ssr: false,
+});
 
 /**
  * Fondo del Panel Administrador: mismo componente Beams ya usado en el Hero

@@ -114,4 +114,4 @@ scripts/
 - **La app no arranca / error de Zod al iniciar**: falta o está mal escrita alguna variable de entorno. Revisa `.env.example` y `src/lib/env.ts`.
 - **`409` en el panel admin o al crear tickets**: el usuario no tiene una API Key de OpenProject configurada todavía (se guarda desde Configuración, no es una variable de entorno global).
 - **Cambios en OpenProject tardan hasta 60s en verse en el panel admin**: es la caché corta de `withAdminAuth` (evita golpear OpenProject en cada carga); cambiar cualquier filtro fuerza una consulta fresca.
-- **Un rango de fechas del Dashboard General muestra "No disponible temporalmente"**: bug conocido del lado del servidor de OpenProject en ciertos rangos que incluyen "hoy"; el resto de las tarjetas sigue funcionando (degradación aislada, no es un error de la app).
+- **Un rango de fechas del Dashboard General muestra "No disponible temporalmente"**: bug conocido del lado del servidor de OpenProject en ciertos rangos que incluyen "hoy"; el resto de las tarjetas sigue funcionando (degradación aislada, no es un error de la app). test

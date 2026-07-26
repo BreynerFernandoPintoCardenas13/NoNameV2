@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { logger } from "@/lib/logger";
 import { apiKeySchema } from "@/modules/auth/schemas/auth.schemas";
 import { getSupabaseServerClient } from "@/modules/auth/services/supabase.server";
 import { OpenProjectService } from "@/modules/openproject/services/openproject.service";
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
   try {
     opUser = await OpenProjectService.withApiKey(apiKey).getCurrentUser();
   } catch (error) {
-    console.error("Verificación de API Key de OpenProject falló:", error);
+    logger.error("Verificación de API Key de OpenProject falló:", error);
     return NextResponse.json({
       hasApiKey: true,
       opCurrentUser: null,
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
     { onConflict: "auth_id" },
   );
   if (settingsError) {
-    console.error("No se pudo guardar user_settings tras verificar la API Key:", settingsError);
+    logger.error("No se pudo guardar user_settings tras verificar la API Key:", settingsError);
     return NextResponse.json(
       {
         error:

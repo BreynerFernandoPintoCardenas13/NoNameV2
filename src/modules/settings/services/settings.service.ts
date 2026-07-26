@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { getSupabaseBrowserClient } from "@/modules/auth/services/supabase.client";
 import {
   rowToSettings,
@@ -24,7 +25,7 @@ export async function getUserSettings(): Promise<UserSettings> {
   ]);
 
   if (settingsResult.error) {
-    console.error("No se pudo cargar la configuración:", settingsResult.error);
+    logger.error("No se pudo cargar la configuración:", settingsResult.error);
     throw new Error(`No se pudo cargar la configuración (${settingsResult.error.message}).`);
   }
   return rowToSettings(

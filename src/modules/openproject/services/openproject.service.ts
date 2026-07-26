@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { authServerEnv, openProjectEnv } from "@/lib/env";
 import { publicEnv } from "@/lib/env.public";
+import { logger } from "@/lib/logger";
 import { OpenProjectClient } from "@/modules/openproject/services/openproject-client";
 import type {
   Board,
@@ -132,7 +133,7 @@ export class OpenProjectService {
         try {
           await this.client.addWorkPackageToBoardColumn(boardListId, workPackage.id);
         } catch (error) {
-          console.error(`No se pudo ubicar el ticket #${workPackage.id} en el tablero:`, error);
+          logger.error(`No se pudo ubicar el ticket #${workPackage.id} en el tablero:`, error);
         }
       }
     }

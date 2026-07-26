@@ -2,9 +2,9 @@
 
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import * as React from "react";
 
-import { Beams } from "@/components/effects/beams";
 import { ElectricBorder } from "@/components/effects/electric-border";
 import { TextType } from "@/components/effects/text-type";
 import { Eyebrow } from "@/components/landing/Eyebrow";
@@ -12,6 +12,12 @@ import { HeroCards } from "@/components/landing/HeroCards";
 import { PillButton } from "@/components/landing/PillButton";
 import { playfair } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
+
+// Code splitting real: three.js/@react-three solo se descarga en el cliente,
+// nunca bloquea el SSR de la landing.
+const Beams = dynamic(() => import("@/components/effects/beams").then((m) => m.Beams), {
+  ssr: false,
+});
 
 const DEFAULT_HEADLINE = "NoName";
 const HEADLINE_CLASSNAME = cn(

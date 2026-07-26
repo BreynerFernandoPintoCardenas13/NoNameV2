@@ -3,6 +3,8 @@
 import * as React from "react";
 import type { StaticImageData } from "next/image";
 
+import { logger } from "@/lib/logger";
+
 import "./profile-card.css";
 
 const DEFAULT_INNER_GRADIENT = "linear-gradient(145deg,#60496e8c 0%,#71C4FF44 100%)";
@@ -298,7 +300,7 @@ export function ProfileCard({
               window.addEventListener("deviceorientation", handleDeviceOrientation);
             }
           })
-          .catch(console.error);
+          .catch((error) => logger.error("No se pudo solicitar permiso de orientación:", error));
       } else {
         window.addEventListener("deviceorientation", handleDeviceOrientation);
       }

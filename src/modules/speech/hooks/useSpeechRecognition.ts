@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { logger } from "@/lib/logger";
 import {
   createSpeechRecognition,
   DEFAULT_SPEECH_LANGUAGE,
@@ -65,7 +66,7 @@ export function useSpeechRecognition({
       // SpeechRecognitionErrorReason), pero queda en consola para poder
       // diagnosticar sin adivinar — "network"/"audio-capture"/"aborted" son
       // casos reales distintos de "no compatible" o "permiso denegado".
-      console.error("SpeechRecognition error:", event.error, event.message);
+      logger.error("SpeechRecognition error:", event.error, event.message);
       if (event.error === "not-allowed" || event.error === "permission-denied") {
         setError("permission-denied");
       } else if (event.error === "no-speech") {
@@ -83,7 +84,7 @@ export function useSpeechRecognition({
     try {
       recognition.start();
     } catch (startError) {
-      console.error("SpeechRecognition failed to start:", startError);
+      logger.error("SpeechRecognition failed to start:", startError);
       setError("unknown");
     }
   }, [lang]);

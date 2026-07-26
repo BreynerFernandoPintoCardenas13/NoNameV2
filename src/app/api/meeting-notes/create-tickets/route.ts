@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { logger } from "@/lib/logger";
 import { getSupabaseServerClient } from "@/modules/auth/services/supabase.server";
 import {
   applyTicketTracking,
@@ -118,13 +119,13 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof OpenProjectApiError) {
-      console.error("OpenProject rechazó la creación de tickets:", error.status, error.body);
+      logger.error("OpenProject rechazó la creación de tickets:", error.status, error.body);
       return NextResponse.json(
         { error: "Error de OpenProject", details: error.body },
         { status: error.status },
       );
     }
-    console.error("Error creando tickets:", error);
+    logger.error("Error creando tickets:", error);
     const message = error instanceof Error ? error.message : "Error inesperado en el servidor";
     return NextResponse.json({ error: message }, { status: 500 });
   }

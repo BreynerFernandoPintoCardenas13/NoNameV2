@@ -151,7 +151,7 @@ export function TicketFlow({ editor, noteId, projectId, onDocumentUpdated }: Tic
                   key={index}
                   className="border-border/60 flex flex-col gap-2 rounded-xl border p-4"
                 >
-                  <h3 className="text-sm font-semibold">{draft.subject}</h3>
+                  <h3 className="text-sm font-semibold break-words">{draft.subject}</h3>
                   <p className="text-muted-foreground text-[13px] leading-relaxed whitespace-pre-line">
                     {draft.description}
                   </p>
@@ -199,7 +199,9 @@ export function TicketFlow({ editor, noteId, projectId, onDocumentUpdated }: Tic
                 <span className="text-muted-foreground shrink-0 text-xs font-medium">
                   #{ticket.id}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-sm">{ticket.subject}</span>
+                <span className="min-w-0 flex-1 truncate text-sm" title={ticket.subject}>
+                  {ticket.subject}
+                </span>
                 <Button
                   variant="outline"
                   size="sm"

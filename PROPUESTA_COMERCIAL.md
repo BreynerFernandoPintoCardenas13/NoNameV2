@@ -112,14 +112,14 @@ NoName no es una lista de funciones. Es una respuesta a necesidades concretas qu
 
 | Variable                                                             | Valor de referencia             | Fuente                                                                                                                           |
 | -------------------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Salario promedio mensual de un Project Manager                       | ≈ $3.000.000 COP                | Computrabajo, Talent.com, Indeed Colombia[^4]                                                                                    |
+| Salario promedio mensual de un Project Manager                       | ≈ $4.000.000 COP                | Computrabajo, Talent.com, Indeed Colombia[^4]                                                                                    |
 | Factor prestacional aproximado (costo empresa sobre salario nominal) | ≈ 1,5x                          | Regla de referencia usada por firmas contables colombianas, sobre la base de seguridad social y prestaciones sociales de ley[^5] |
 | Jornada laboral legal vigente desde el 15 de julio de 2026           | 42 horas/semana ≈ 182 horas/mes | Ley 2101 de 2021[^6]                                                                                                             |
 
 **Costo-hora estimado de un Project Manager:**
 
 ```
-($3.000.000 × 1,5) ÷ 168 horas/mes ≈ $26.785 COP/hora
+$4.000.000 ÷ 168 horas/mes ≈ $23.809 COP/hora
 ```
 
 **Escenario ilustrativo:** si cada Project Manager dedica hoy en promedio **3,5 horas por semana** a transcribir notas de reunión y redactar tickets manualmente en OpenProject — un supuesto conservador frente a la evidencia de que los profesionales de conocimiento pierden en promedio 4,5 horas semanales solo _buscando_ información[^8] — y NoName reduce ese tiempo entre un 70% y un 80% mediante dictado y generación asistida por IA, el cálculo es el siguiente:
@@ -127,9 +127,9 @@ NoName no es una lista de funciones. Es una respuesta a necesidades concretas qu
 | Concepto                             | Valor                     |
 | ------------------------------------ | ------------------------- |
 | Horas recuperadas por PM al mes      | ≈ 15 horas                |
-| Valor de esas horas (a $49.000/hora) | ≈ $401.775 COP/mes por PM |
-| Con un equipo de 4 Project Managers  | ≈ $803.550 COP/mes        |
-| Proyectado a 12 meses                | ≈ **$9.642.600 COP/año**  |
+| Valor de esas horas (a $23.809/hora) | ≈ $357.135COP/mes por PM  |
+| Con un equipo de 4 Project Managers  | ≈ $1.428.540 COP/mes      |
+| Proyectado a 12 meses                | ≈ **$17.142.480 COP/año** |
 
 Esta cifra **no incluye** beneficios adicionales, más difíciles de cuantificar pero igual de reales: menos retrabajo por tickets mal escritos, menos interrupciones a desarrolladores para pedir aclaraciones, y decisiones de staffing más rápidas gracias a métricas en vivo. A nivel global, estudios de automatización de procesos reportan retornos promedio del orden de 240%, con periodos de recuperación de la inversión de 6 a 9 meses[^11] — cifra internacional, útil como referencia de magnitud, no como promesa para su operación particular.
 

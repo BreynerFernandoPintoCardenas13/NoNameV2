@@ -22,13 +22,18 @@ function getNodeText(node: React.ReactNode): string {
   return "";
 }
 
-/** Recorre los children de <Select> (Trigger + Content) para mapear value -> label mostrado en SelectValue. */
-function collectSelectLabels(node: React.ReactNode, out: Map<unknown, React.ReactNode>) {
+/**
+ * Recorre los children de <Select> (Trigger + Content) para mapear value -> label
+ * mostrado en SelectValue. La clave se normaliza a string: el value seleccionado
+ * (id de formulario, a veces number) y el value de SelectItem (siempre string, vía
+ * String(id)) deben resolver al mismo item aunque su tipo original difiera.
+ */
+function collectSelectLabels(node: React.ReactNode, out: Map<string, React.ReactNode>) {
   React.Children.forEach(node, (child) => {
     if (!React.isValidElement(child)) return;
     if (child.type === SelectItem) {
       const props = child.props as { value: unknown; children?: React.ReactNode };
-      out.set(props.value, props.children);
+      out.set(String(props.value), props.children);
       return;
     }
     const props = child.props as { children?: React.ReactNode } | undefined;
@@ -66,7 +71,7 @@ const SelectQueryContext = React.createContext<{
   setQuery: (query: string) => void;
 }>({ query: "", setQuery: () => {} });
 
-const SelectLabelsContext = React.createContext<Map<unknown, React.ReactNode>>(new Map());
+const SelectLabelsContext = React.createContext<Map<string, React.ReactNode>>(new Map());
 
 function Select<Value = string, Multiple extends boolean | undefined = false>({
   children,
@@ -76,7 +81,7 @@ function Select<Value = string, Multiple extends boolean | undefined = false>({
   const [query, setQuery] = React.useState("");
 
   const labels = React.useMemo(() => {
-    const map = new Map<unknown, React.ReactNode>();
+    const map = new Map<string, React.ReactNode>();
     collectSelectLabels(children, map);
     return map;
   }, [children]);
@@ -121,9 +126,13 @@ function SelectValue({
   return (
     <span data-slot="select-value" className={cn("flex flex-1 text-left", className)}>
       <ComboboxPrimitive.Value>
-        {(selectedValue: unknown) =>
-          selectedValue == null ? placeholder : (labels.get(selectedValue) ?? String(selectedValue))
-        }
+        {(selectedValue: unknown) => {
+          if (selectedValue == null) return placeholder;
+          // Sin fallback a String(selectedValue): un id nunca debe llegar a mostrarse.
+          // Si el item aún no está montado (opciones cargando o value fuera de la
+          // lista actual) se muestra vacío y se autocorrige en cuanto el item aparezca.
+          return labels.get(String(selectedValue)) ?? null;
+        }}
       </ComboboxPrimitive.Value>
     </span>
   );
